@@ -202,6 +202,22 @@ bool Connections::waitForMyTurn(bool * callback(move_s move, int data1, int data
 	}
 	else
 		answer = false;
+
+	if (answer == true)
+		data2Send[0] = ACK_C;
+	else
+		data2Send[0] = ERROR_C;
+	if (isServer)
+	{
+		Server * server = (Server *)SoC;
+		server->sendData(data2Send, 1);
+	}
+	else
+	{
+		Client * client = (Client *)SoC;
+		client->sendData(data2Send, 1);
+	}
+
 	return answer;
 }
 
@@ -222,17 +238,19 @@ bool Connections::sendMessage(move_s move, int data1, int data2, int data3, int 
 	{
 		Server * server = (Server *)SoC;
 		server->sendData(data2Send, 6);
+		clearBuffer();
+		do {
+			server->receiveDataFromClient(buffer, BUFFER_SIZE_C);				//esto en realidad no va a ir asi falta checkear otros mensajes, por ahora para debuguear lo dejop asi
+		} while (buffer[0] != ACK_C);
 	}
 	else
 	{
 		Client * client = (Client *)SoC;
 		client->sendData(data2Send, 6);
+		clearBuffer();
+		do {
+			client->receiveDataFromServer(buffer, BUFFER_SIZE_C);
+		} while (buffer[0] != ACK_C);
 	}
-
-
-
-
-
-
 	return true;
 }
