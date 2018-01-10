@@ -172,3 +172,67 @@ void Connections::setName(char * name, unsigned int size)
 		nameP1[i] = name[i];
 	return;
 }
+
+bool Connections::waitForMyTurn(bool * callback(move_s move, int data1, int data2, int data3, int data4, int data5))
+{
+	bool answer;
+	if (isServer)
+	{
+		Server * server = (Server *)SoC;
+		clearBuffer();
+		server->receiveDataFromClient(buffer, BUFFER_SIZE_C);
+	}
+	else
+	{
+		Client * client = (Client *)SoC;
+		clearBuffer();
+		client->receiveDataFromServer(buffer, BUFFER_SIZE_C);
+	}
+	if (buffer[0] == MOVE_C)
+	{
+		answer = callback(MOVE, buffer[1], buffer[2], buffer[3], buffer[4], 0);
+	}
+	else if (buffer[0] == PURCHASE_C)
+	{
+		answer = callback(PURCHASE, buffer[1], buffer[2], buffer[3], buffer[4], 0);
+	}
+	else if (buffer[0] == ATTACK_C)
+	{
+		answer = callback(ATTACK, buffer[1], buffer[2], buffer[3], buffer[4], buffer[5]);
+	}
+	else
+		answer = false;
+	return answer;
+}
+
+bool Connections::sendMessage(move_s move, int data1, int data2, int data3, int data4, int data5)
+{
+	if (move == MOVE)
+		data2Send[0] = MOVE_C;
+	else if (move == PURCHASE)
+		data2Send[0] = PURCHASE_C;
+	else if (move == ATTACK)
+		data2Send[0] = ATTACK_C;
+	data2Send[1] = data1;
+	data2Send[2] = data2;
+	data2Send[3] = data3;
+	data2Send[4] = data4;
+	data2Send[5] = data5;
+	if (isServer)
+	{
+		Server * server = (Server *)SoC;
+		server->sendData(data2Send, 6);
+	}
+	else
+	{
+		Client * client = (Client *)SoC;
+		client->sendData(data2Send, 6);
+	}
+
+
+
+
+
+
+	return true;
+}
