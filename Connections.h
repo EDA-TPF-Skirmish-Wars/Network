@@ -1,9 +1,6 @@
 #ifndef CONNECTIONS_H
 #define CONNECTIONS_H
 
-#include "Server.h"
-#include "Client.h"
-
 #define BUFFER_SIZE_C	257
 
 typedef enum {ATTACK, PURCHASE, MOVE, PASS, QUIT}move_s;
@@ -24,14 +21,18 @@ public:
 	//nombre del mapa, el tamaño del nombre y el checksum del mapa como argumentos. En caso de ser servidor se deve enviar como argumentos
 	//primero un NULL seguido de el tamaño del nombre del mapa sorteado, el checksum, y por ultimo puntero al nombre.
 	bool amIServer();														//3°
-	bool waitForMyTurn(bool * callback(move_s move,int data1, int data2 , int data3, int data4, int data5));
+	bool waitForMyTurn(bool * callback(move_s move,int data1, int data2 , int data3, int data4, int data5)); // esta funcion espera a recibir una jugada del jugador contrario
+	//ni bien la recibe llama al callback con la movida que hizo el contrario y todos los datos para actualizar en el tablero nuestro, luego, cuando el callback le devuelve u
+	//true (es decir que todo esta bien), envia un ack y sale de la funcion con un true, en caso de que la movida no sea valida, el callback debe devolver un false, por lo cual
+	//la funcion envia un paquete ERROR, y sale de la funcion con un false, por lo que se da como finalizada la partida y perdida la conexion
 protected:
-	void clearBuffer();
 	bool isServer;
 	void * SoC;			//Server or Client
 	p2char nameP1, nameP2;
 	unsigned int nameSize;
 	unsigned int nameSizeP2;
+private:
+	void clearBuffer();
 	byte buffer[BUFFER_SIZE_C];
 	char data2Send[BUFFER_SIZE_C];						//creo un buffer para enviar datos
 };

@@ -29,6 +29,17 @@ Connections::Connections()
 		buffer[i]=0;
 }
 
+Connections::~Connections()
+{
+	if (SoC != NULL)
+		delete SoC;
+	if (nameP1 != NULL)
+		delete nameP1;
+	if (nameP2 != NULL)
+		delete nameP2;
+	return;
+}
+
 bool Connections::establishConnection()
 {
 	SoC = new Client;
@@ -128,23 +139,23 @@ bool Connections::initGame(void * callback(char* mapName, unsigned int mapNameSi
 			answer = true;
 		}
 	}
-	else
+	else											//En caso de ser cliente
 	{
 		Client * client = (Client *)SoC;
 		clearBuffer();
-		timerNB(120000);
+		timerNB(120000);							// espero 2 minutos
 		do {
 			client->receiveDataFromServer(buffer, BUFFER_SIZE_C);
 			if (!exit)
 				exit = isTimerFinished();
-		} while (buffer[0] != NAME_C || exit != true);
+		} while (buffer[0] != NAME_C || exit != true);		//veo si recibo datos del servidor o si se acabo el tiempo
 		data2Send[0] = NAME_IS_C;							//creo el paquete name is
 		data2Send[1] = nameSize;
 		for (int i = 0; i<nameSize; i++)
 			data2Send[1 + i] = nameP1[i];
 		client->sendData(data2Send, nameSize + 2);				//lo envio
 		clearBuffer();
-		timerNB(120000);
+		timerNB(120000);									
 		do {
 			client->receiveDataFromServer(buffer, BUFFER_SIZE_C);
 			if (!exit)
@@ -189,18 +200,18 @@ bool Connections::initGame(void * callback(char* mapName, unsigned int mapNameSi
 			answer = false;
 	}
 	if (exit == true)
-		cout << "Conxion fallida" << endl;		//ver que hacer en este caso
+		cout << "Conxion fallida" << endl;		//ver que hacer en este caso (caso de que halla habido un problema en la conexion)
 	return answer;
 }
 
-void Connections::clearBuffer()
+void Connections::clearBuffer()				//funcion propia que inicializa en 0 la variable buffer
 {
 	for(unsigned int i = 0; i < BUFFER_SIZE_C; i++)	
 		buffer[i] = 0;
 	return;
 }
 
-void Connections::setName(char * name, unsigned int size)
+void Connections::setName(char * name, unsigned int size)		//funcion de inicializacion del nombre del jugador
 {
 	nameSize = size;
 	nameP1 = new char[size];
@@ -212,7 +223,7 @@ void Connections::setName(char * name, unsigned int size)
 bool Connections::waitForMyTurn(bool * callback(move_s move, int data1, int data2, int data3, int data4, int data5))
 {
 	bool answer;
-	if (isServer)
+	if (isServer)											//primero me fijo si inicialmente fui servidor o cliente para castear el SoC y utilizar las funciones correctas
 	{
 		Server * server = (Server *)SoC;
 		clearBuffer();
@@ -224,7 +235,7 @@ bool Connections::waitForMyTurn(bool * callback(move_s move, int data1, int data
 		clearBuffer();
 		client->receiveDataFromServer(buffer, BUFFER_SIZE_C);
 	}
-	if (buffer[0] == MOVE_C)
+	if (buffer[0] == MOVE_C)							//una vez recivido los datos, checkeo si estos son validos y en caso de ser asi, llamo al callback con los datos recividos
 	{
 		answer = callback(MOVE, buffer[1], buffer[2], buffer[3], buffer[4], 0);
 	}
@@ -239,10 +250,10 @@ bool Connections::waitForMyTurn(bool * callback(move_s move, int data1, int data
 	else
 		answer = false;
 
-	if (answer == true)
+	if (answer == true)			//en caso de que el callback me devuelva un true, envio un ACK
 		data2Send[0] = ACK_C;
 	else
-		data2Send[0] = ERROR_C;
+		data2Send[0] = ERROR_C;	// caso contrario envio un paquete error
 	if (isServer)
 	{
 		Server * server = (Server *)SoC;
@@ -254,30 +265,34 @@ bool Connections::waitForMyTurn(bool * callback(move_s move, int data1, int data
 		client->sendData(data2Send, 1);
 	}
 
-	return answer;
+	return answer; // si estuvo todo OK devuelvo un true, caso contrario un false
 }
 
 bool Connections::sendMessage(move_s move, int data1, int data2, int data3, int data4, int data5)
 {
-	if (move == MOVE)
+	bool exit = false;
+	if (move == MOVE)					//seteo el paquete uqe voy a enviar
 		data2Send[0] = MOVE_C;
 	else if (move == PURCHASE)
 		data2Send[0] = PURCHASE_C;
 	else if (move == ATTACK)
 		data2Send[0] = ATTACK_C;
-	data2Send[1] = data1;
-	data2Send[2] = data2;
-	data2Send[3] = data3;
+	data2Send[1] = data1;	//si bien para algunos paquetes la cantidad de datos puede sobrar, envio todos los datos que tengo en las variables, porque
+	data2Send[2] = data2;	//los datos no inicializados se setean en 0, y el que recibe el mensaje debe checkear que los datos esten bien, por lo cual no hace falta
+	data2Send[3] = data3;	//ver que datos envio para cada paquete.
 	data2Send[4] = data4;
 	data2Send[5] = data5;
-	if (isServer)
+	timerNB(120000);
+	if (isServer)			//envio el paquete y espero a recibir un ACK
 	{
 		Server * server = (Server *)SoC;
 		server->sendData(data2Send, 6);
 		clearBuffer();
 		do {
+			if (!exit)
+				exit = isTimerFinished();
 			server->receiveDataFromClient(buffer, BUFFER_SIZE_C);				//esto en realidad no va a ir asi falta checkear otros mensajes, por ahora para debuguear lo dejop asi
-		} while (buffer[0] != ACK_C);
+		} while (buffer[0] != ACK_C || exit != true || buffer[0]==ERROR_C);
 	}
 	else
 	{
@@ -285,8 +300,16 @@ bool Connections::sendMessage(move_s move, int data1, int data2, int data3, int 
 		client->sendData(data2Send, 6);
 		clearBuffer();
 		do {
+			if (!exit)
+				exit = isTimerFinished();
 			client->receiveDataFromServer(buffer, BUFFER_SIZE_C);
-		} while (buffer[0] != ACK_C);
+		} while (buffer[0] != ACK_C  || exit != true || buffer[0] == ERROR_C);
 	}
-	return true;
+
+
+	if (exit || buffer[0] == ERROR_C)
+		return false;
+	else
+		return true;
+
 }
