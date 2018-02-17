@@ -7,7 +7,7 @@ ALLEGRO_EVENT ev;
 
 void timerMiliseconds(unsigned int milis)
 {
-	timer = al_create_timer((1.0/1000) *milis);
+	timer = al_create_timer((1.0 / 1000) * milis);
 	queue = al_create_event_queue();
 	al_register_event_source(queue, al_get_timer_event_source(timer));
 	al_start_timer(timer);

@@ -96,7 +96,7 @@ bool Connections::initGame(void * callback(char* mapName, unsigned int mapNameSi
 		}while (buffer[0] != NAME_C || exit != true);
 		data2Send[0]= NAME_IS_C;							//creo el paquete name is
 		data2Send[1]=nameSize;
-		for(int i=0;i<nameSize;i++)
+		for(unsigned int i=0;i<nameSize;i++)
 			data2Send[1+i]=nameP1[i];
 		server->sendData(data2Send,nameSize+2);				//lo envio
 		clearBuffer();										//limpio el buffer recibido anteriormente
@@ -151,7 +151,7 @@ bool Connections::initGame(void * callback(char* mapName, unsigned int mapNameSi
 		} while (buffer[0] != NAME_C || exit != true);		//veo si recibo datos del servidor o si se acabo el tiempo
 		data2Send[0] = NAME_IS_C;							//creo el paquete name is
 		data2Send[1] = nameSize;
-		for (int i = 0; i<nameSize; i++)
+		for (unsigned int i = 0; i<nameSize; i++)
 			data2Send[1 + i] = nameP1[i];
 		client->sendData(data2Send, nameSize + 2);				//lo envio
 		clearBuffer();
@@ -251,9 +251,9 @@ bool Connections::waitForMyTurn(bool * callback(move_s move, int data1, int data
 		answer = false;
 
 	if (answer == true)			//en caso de que el callback me devuelva un true, envio un ACK
-		data2Send[0] = ACK_C;
+		data2Send[0] = (char)ACK_C;
 	else
-		data2Send[0] = ERROR_C;	// caso contrario envio un paquete error
+		data2Send[0] = (char)ERROR_C;	// caso contrario envio un paquete error
 	if (isServer)
 	{
 		Server * server = (Server *)SoC;
