@@ -230,7 +230,7 @@ void Connections::setName(char * name, unsigned int size)		//funcion de iniciali
 	return;
 }
 
-bool Connections::waitForMyTurn(bool * callback(move_s move, int data1, int data2, int data3, int data4, int data5))
+bool Connections::waitForMyTurn(bool callback(move_s move, int data1, int data2, int data3, int data4, int data5))
 {
 	bool answer;
 	if (isServer)											//primero me fijo si inicialmente fui servidor o cliente para castear el SoC y utilizar las funciones correctas
