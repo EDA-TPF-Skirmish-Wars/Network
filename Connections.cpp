@@ -189,7 +189,7 @@ char Connections::initGame(void * callback(char* mapName, unsigned int mapNameSi
 		for (unsigned int i = 0; i < buffer[0]; i++)
 			tempMapName[i] = buffer[2 + i];
 		callback(tempMapName, buffer[1], buffer[2+buffer[1]]);
-		delete[] tempMapName;																//NO ENTIENDO PORQUE NO ANDA ESTE DELETE BIENN
+		delete tempMapName;																//NO ENTIENDO PORQUE NO ANDA ESTE DELETE BIENN
 		data2Send[0] = ACK_C;								//mando un ACK
 		client->sendData(data2Send, 1);
 		clearBuffer();
