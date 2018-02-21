@@ -69,22 +69,22 @@ bool Connections::initGame(void * callback(char* mapName, unsigned int mapNameSi
 {
 	bool answer;
 	bool exit = false;
-	if(isServer)
+	if (isServer)
 	{
 		Server * server = (Server *)SoC;
-		data2Send[0] =NAME_C;								//creo el paquete name y lo mando
+		data2Send[0] = NAME_C;								//creo el paquete name y lo mando
 		server->sendData(data2Send, 1);
 		timerNB(120000);
 		do {												//espero hasta recibir un paquete name is
 			server->receiveDataFromClient(buffer, BUFFER_SIZE_C);
-			if(!exit)
+			if (!exit)
 				exit = isTimerFinished();
-		}while (buffer[0] != NAME_IS_C || exit != true);
+		} while (buffer[0] != NAME_IS_C && exit != true);
 		int sizeOfName = buffer[1];							//guardo el nombre
 		nameP2 = new char[sizeOfName];						//en nameP2
 		nameSizeP2 = sizeOfName;
-		for(int i = 0; i<sizeOfName;i++)				
-			nameP2[i]=buffer[2+i];
+		for (int i = 0; i < sizeOfName; i++)
+			nameP2[i] = buffer[1 + i];
 		data2Send[0] = ACK_C;								//mando un ACK
 		server->sendData(data2Send, 1);
 		clearBuffer();										//limpio el buffer recibido anteriormente
@@ -93,32 +93,32 @@ bool Connections::initGame(void * callback(char* mapName, unsigned int mapNameSi
 			server->receiveDataFromClient(buffer, BUFFER_SIZE_C);
 			if (!exit)
 				exit = isTimerFinished();
-		}while (buffer[0] != NAME_C || exit != true);
-		data2Send[0]= NAME_IS_C;							//creo el paquete name is
-		data2Send[1]=nameSize;
-		for(unsigned int i=0;i<nameSize;i++)
-			data2Send[1+i]=nameP1[i];
-		server->sendData(data2Send,nameSize+2);				//lo envio
+		} while (buffer[0] != NAME_C && exit != true);
+		data2Send[0] = NAME_IS_C;							//creo el paquete name is
+		data2Send[1] = nameSize;
+		for (unsigned int i = 0; i < nameSize; i++)
+			data2Send[1 + i] = nameP1[i];
+		server->sendData(data2Send, nameSize + 2);				//lo envio
 		clearBuffer();										//limpio el buffer recibido anteriormente
 		timerNB(120000);
 		do {												//espero a que me llegue un paquete ACK
 			server->receiveDataFromClient(buffer, BUFFER_SIZE_C);
 			if (!exit)
 				exit = isTimerFinished();
-		} while (buffer[0] != ACK_C || exit != true);
+		} while (buffer[0] != ACK_C && exit != true);
 		data2Send[0] = MAP_IS_C;							//Genero un paquete map_is
 		data2Send[1] = sizeOfMapName;						//con los datos recibidos de la funcion
 		for (unsigned int i = 0; i < sizeOfMapName; i++)
-			data2Send[1 + i] = mapName[i - 1];
+			data2Send[2 + i] = mapName[i];
 		data2Send[1 + sizeOfMapName + 1] = checksum;
 		server->sendData(data2Send, sizeOfMapName + 3);		//envio el paquete
-		clearBuffer();	
+		clearBuffer();
 		timerNB(120000);
 		do {												//espero a que me llegue un paquete ACK
 			server->receiveDataFromClient(buffer, BUFFER_SIZE_C);
 			if (!exit)
 				exit = isTimerFinished();
-		} while (buffer[0] != ACK_C || exit != true);
+		} while (buffer[0] != ACK_C && exit != true);
 		if ((rand() % 2) != 0)								//Sorteo que jugador va a empezar
 		{
 			data2Send[0] = YOU_START_C;						//en caso de que salga 1 empieza el cliente
@@ -128,14 +128,14 @@ bool Connections::initGame(void * callback(char* mapName, unsigned int mapNameSi
 		else
 		{
 			data2Send[0] = I_START_C;						//caso contrario le envio el paquete i start
-			server->sendData(data2Send, 1);					
+			server->sendData(data2Send, 1);
 			clearBuffer();
 			timerNB(120000);
 			do {											//y espero a que me llegue un paquete ACK para poder continuar
 				server->receiveDataFromClient(buffer, BUFFER_SIZE_C);
 				if (!exit)
 					exit = isTimerFinished();
-			} while (buffer[0] != ACK_C || exit != true);
+			} while (buffer[0] != ACK_C && exit != true);
 			answer = true;
 		}
 	}
@@ -148,19 +148,19 @@ bool Connections::initGame(void * callback(char* mapName, unsigned int mapNameSi
 			client->receiveDataFromServer(buffer, BUFFER_SIZE_C);
 			if (!exit)
 				exit = isTimerFinished();
-		} while (buffer[0] != NAME_C || exit != true);		//veo si recibo datos del servidor o si se acabo el tiempo
+		} while (buffer[0] != NAME_C && exit != true);		//veo si recibo datos del servidor o si se acabo el tiempo
 		data2Send[0] = NAME_IS_C;							//creo el paquete name is
 		data2Send[1] = nameSize;
-		for (unsigned int i = 0; i<nameSize; i++)
+		for (unsigned int i = 0; i < nameSize; i++)
 			data2Send[1 + i] = nameP1[i];
 		client->sendData(data2Send, nameSize + 2);				//lo envio
 		clearBuffer();
-		timerNB(120000);									
+		timerNB(120000);
 		do {
 			client->receiveDataFromServer(buffer, BUFFER_SIZE_C);
 			if (!exit)
 				exit = isTimerFinished();
-		} while (buffer[0] != ACK_C || exit != true);
+		} while (buffer[0] != ACK_C && exit != true);
 		data2Send[0] = NAME_C;
 		client->sendData(data2Send, 1);
 		clearBuffer();
@@ -169,12 +169,12 @@ bool Connections::initGame(void * callback(char* mapName, unsigned int mapNameSi
 			client->receiveDataFromServer(buffer, BUFFER_SIZE_C);
 			if (!exit)
 				exit = isTimerFinished();
-		} while (buffer[0] != NAME_IS_C || exit != true);
+		} while (buffer[0] != NAME_IS_C && exit != true);
 		int sizeOfName = buffer[1];							//guardo el nombre
 		nameP2 = new char[sizeOfName];						//en nameP2
 		nameSizeP2 = sizeOfName;
-		for (int i = 0; i<sizeOfName; i++)
-			nameP2[i] = buffer[2 + i];
+		for (int i = 0; i < sizeOfName; i++)
+			nameP2[i] = buffer[1 + i];
 		data2Send[0] = ACK_C;								//mando un ACK
 		client->sendData(data2Send, 1);
 		clearBuffer();
@@ -183,8 +183,13 @@ bool Connections::initGame(void * callback(char* mapName, unsigned int mapNameSi
 			client->receiveDataFromServer(buffer, BUFFER_SIZE_C);
 			if (!exit)
 				exit = isTimerFinished();
-		} while (buffer[0] != MAP_IS_C || exit != true);
-		callback((char *)buffer[2], buffer[1], buffer[2 + buffer[1]]);
+		} while (buffer[0] != MAP_IS_C && exit != true);
+		char * tempMapName;
+		tempMapName = new char[buffer[1]];
+		for (unsigned int i = 0; i < buffer[0]; i++)
+			tempMapName[i] = buffer[2 + i];
+		callback(tempMapName, buffer[1], buffer[2+buffer[1]]);
+		delete[] tempMapName;																//NO ENTIENDO PORQUE NO ANDA ESTE DELETE BIENN
 		data2Send[0] = ACK_C;								//mando un ACK
 		client->sendData(data2Send, 1);
 		clearBuffer();
@@ -193,7 +198,9 @@ bool Connections::initGame(void * callback(char* mapName, unsigned int mapNameSi
 			client->receiveDataFromServer(buffer, BUFFER_SIZE_C);
 			if (!exit)
 				exit = isTimerFinished();
-		} while (buffer[0] != YOU_START_C || buffer[0] != I_START_C || exit != true);
+		} while (buffer[0] != YOU_START_C && buffer[0] != I_START_C && exit != true);
+		data2Send[0] = ACK_C;								//mando un ACK
+		client->sendData(data2Send, 1);
 		if (buffer[0] == YOU_START_C)
 			answer = true;
 		else
