@@ -3,6 +3,7 @@
 
 #include <iostream>
 #define BUFFER_SIZE_C	257
+#define ERROR_COM	-1
 
 typedef enum {ATTACK, PURCHASE, MOVE, PASS, QUIT}move_s;
 typedef char * p2char;
@@ -17,11 +18,11 @@ public:
 	bool establishConnection();												//1°		(anda perfecto)
 	void setName(char * name, unsigned int size);							//2°		(anda perfecto)
 	bool sendMessage(move_s move, int data1 = 0, int data2 = 0, int data3 = 0, int data4 = 0, int data5 = 0);		//Bloqueante hasta que llegue un ACK o haya un timeout
-	bool initGame(void * callback(char* mapName,unsigned int mapNameSize,int checksum) = NULL, unsigned int sizeOfMapName = 0, int checksum = 0, char * mapName = NULL); 
+	char initGame(void * callback(char* mapName,unsigned int mapNameSize,int checksum) = NULL, unsigned int sizeOfMapName = 0, int checksum = 0, char * mapName = NULL); 
 	// (anda bien, falta ver porque el delete de tempMapName esta dando problemas, por lo demas, la funcion anda perfecto)
 	
-	//4°  initGame devuelve un true si es su turno de jugar o false si es turno del oponente, en caso de ser cliente recibe un callback con el
-	//nombre del mapa, el tamaño del nombre y el checksum del mapa como argumentos. En caso de ser servidor se deve enviar como argumentos
+	//4°  initGame devuelve un true si es su turno de jugar, false si es turno del oponente o ERROR si hubo un problema de coneccion, en caso de ser cliente recibe 
+	//un callback con el nombre del mapa, el tamaño del nombre y el checksum del mapa como argumentos. En caso de ser servidor se deve enviar como argumentos
 	//primero un NULL seguido de el tamaño del nombre del mapa sorteado, el checksum, y por ultimo puntero al nombre.
 	bool amIServer();														//3°
 	bool waitForMyTurn(bool * callback(move_s move,int data1, int data2 , int data3, int data4, int data5)); // esta funcion espera a recibir una jugada del jugador contrario

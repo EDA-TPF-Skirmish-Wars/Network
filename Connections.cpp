@@ -65,7 +65,7 @@ bool Connections::establishConnection()
 bool Connections::amIServer()
 {return isServer;}
 
-bool Connections::initGame(void * callback(char* mapName, unsigned int mapNameSize, int checksum), unsigned int sizeOfMapName, int checksum, char * mapName)
+char Connections::initGame(void * callback(char* mapName, unsigned int mapNameSize, int checksum), unsigned int sizeOfMapName, int checksum, char * mapName)
 {
 	bool answer;
 	bool exit = false;
@@ -207,7 +207,10 @@ bool Connections::initGame(void * callback(char* mapName, unsigned int mapNameSi
 			answer = false;
 	}
 	if (exit == true)
+	{
 		cout << "Conxion fallida" << endl;		//ver que hacer en este caso (caso de que halla habido un problema en la conexion)
+		answer = ERROR_COM;
+	}
 	return answer;
 }
 
@@ -278,12 +281,14 @@ bool Connections::waitForMyTurn(bool * callback(move_s move, int data1, int data
 bool Connections::sendMessage(move_s move, int data1, int data2, int data3, int data4, int data5)
 {
 	bool exit = false;
-	if (move == MOVE)					//seteo el paquete uqe voy a enviar
+	if (move == MOVE)					//seteo el paquete que voy a enviar
 		data2Send[0] = MOVE_C;
 	else if (move == PURCHASE)
 		data2Send[0] = PURCHASE_C;
 	else if (move == ATTACK)
 		data2Send[0] = ATTACK_C;
+	else if (move == PASS)
+		data2Send[0] = PASS_C;
 	data2Send[1] = data1;	//si bien para algunos paquetes la cantidad de datos puede sobrar, envio todos los datos que tengo en las variables, porque
 	data2Send[2] = data2;	//los datos no inicializados se setean en 0, y el que recibe el mensaje debe checkear que los datos esten bien, por lo cual no hace falta
 	data2Send[3] = data3;	//ver que datos envio para cada paquete.
@@ -299,7 +304,7 @@ bool Connections::sendMessage(move_s move, int data1, int data2, int data3, int 
 			if (!exit)
 				exit = isTimerFinished();
 			server->receiveDataFromClient(buffer, BUFFER_SIZE_C);				//esto en realidad no va a ir asi falta checkear otros mensajes, por ahora para debuguear lo dejop asi
-		} while (buffer[0] != ACK_C || exit != true || buffer[0]==ERROR_C);
+		} while (buffer[0] != ACK_C && exit != true && buffer[0]!=ERROR_C);
 	}
 	else
 	{
@@ -310,7 +315,7 @@ bool Connections::sendMessage(move_s move, int data1, int data2, int data3, int 
 			if (!exit)
 				exit = isTimerFinished();
 			client->receiveDataFromServer(buffer, BUFFER_SIZE_C);
-		} while (buffer[0] != ACK_C  || exit != true || buffer[0] == ERROR_C);
+		} while (buffer[0] != ACK_C  && exit != true && buffer[0] != ERROR_C);
 	}
 
 
