@@ -3,6 +3,7 @@
 #include "Server.h"
 #include "Timer.h"
 #include <iostream>
+
 #define NAME_C	0x10
 #define NAME_IS_C	0x11
 #define ACK_C		0x01
@@ -18,6 +19,11 @@
 #define GAME_OVER_C	0x51
 #define ERROR_C	0xFE
 #define QUIT_C	0xFF
+
+#define DEFAULT_TIMEOUT	120000
+#define HOST	"localhost"
+#define PORT	"13225"
+#define PORT_NUM	13225
 
 using namespace std;
 
@@ -44,18 +50,19 @@ bool Connections::establishConnection()
 {
 	SoC = new Client;
 	Client * client = (Client *)SoC;
-	isServer = !(client->ConnectToServer("localhost","13225"));		//intento conectarme como cliente
+		isServer = !(client->ConnectToServer(HOST,PORT));		//intento conectarme como cliente
 	if(!isServer)													//si conecte, salgo de la funcion
-		return true;
-	int num = rand()%5000;			//en caso de no haber conectado hago un randon de un numero de entre 2000 y 5000
-	while(num < 2000)
-		num = rand()%5000;
+		return true;		
+	int num;
+	do {
+		num = rand() % 5000;	//en caso de no haber conectado hago un random de un numero de entre 2000 y 5000
+	} while (num < 2000);
 	timerMiliseconds(num);
-	isServer = !(client->ConnectToServer("localhost","13225"));	//vuelvo a intentar conectar como cliente
+	isServer = !(client->ConnectToServer(HOST,PORT));	//vuelvo a intentar conectar como cliente
 	if(isServer)					//en caso de no poder, creo un servidor
 	{
 		delete SoC;
-		SoC = new Server(13225);
+		SoC = new Server(PORT_NUM);
 		Server * server = (Server *)SoC;
 		server->waitForClient();		//espero a que un cliente se conecte
 	}
@@ -74,7 +81,7 @@ char Connections::initGame(void * callback(char* mapName, unsigned int mapNameSi
 		Server * server = (Server *)SoC;
 		data2Send[0] = NAME_C;								//creo el paquete name y lo mando
 		server->sendData(data2Send, 1);
-		timerNB(120000);
+		timerNB(DEFAULT_TIMEOUT);
 		do {												//espero hasta recibir un paquete name is
 			server->receiveDataFromClient(buffer, BUFFER_SIZE_C);
 			if (!exit)
@@ -88,7 +95,7 @@ char Connections::initGame(void * callback(char* mapName, unsigned int mapNameSi
 		data2Send[0] = ACK_C;								//mando un ACK
 		server->sendData(data2Send, 1);
 		clearBuffer();										//limpio el buffer recibido anteriormente
-		timerNB(120000);
+		timerNB(DEFAULT_TIMEOUT);
 		do {												//espero a que me llegue un paquete name
 			server->receiveDataFromClient(buffer, BUFFER_SIZE_C);
 			if (!exit)
@@ -100,7 +107,7 @@ char Connections::initGame(void * callback(char* mapName, unsigned int mapNameSi
 			data2Send[1 + i] = nameP1[i];
 		server->sendData(data2Send, nameSize + 2);				//lo envio
 		clearBuffer();										//limpio el buffer recibido anteriormente
-		timerNB(120000);
+		timerNB(DEFAULT_TIMEOUT);
 		do {												//espero a que me llegue un paquete ACK
 			server->receiveDataFromClient(buffer, BUFFER_SIZE_C);
 			if (!exit)
@@ -113,7 +120,7 @@ char Connections::initGame(void * callback(char* mapName, unsigned int mapNameSi
 		data2Send[1 + sizeOfMapName + 1] = checksum;
 		server->sendData(data2Send, sizeOfMapName + 3);		//envio el paquete
 		clearBuffer();
-		timerNB(120000);
+		timerNB(DEFAULT_TIMEOUT);
 		do {												//espero a que me llegue un paquete ACK
 			server->receiveDataFromClient(buffer, BUFFER_SIZE_C);
 			if (!exit)
@@ -130,7 +137,7 @@ char Connections::initGame(void * callback(char* mapName, unsigned int mapNameSi
 			data2Send[0] = I_START_C;						//caso contrario le envio el paquete i start
 			server->sendData(data2Send, 1);
 			clearBuffer();
-			timerNB(120000);
+			timerNB(DEFAULT_TIMEOUT);
 			do {											//y espero a que me llegue un paquete ACK para poder continuar
 				server->receiveDataFromClient(buffer, BUFFER_SIZE_C);
 				if (!exit)
@@ -143,7 +150,7 @@ char Connections::initGame(void * callback(char* mapName, unsigned int mapNameSi
 	{
 		Client * client = (Client *)SoC;
 		clearBuffer();
-		timerNB(120000);							// espero 2 minutos
+		timerNB(DEFAULT_TIMEOUT);							// espero 2 minutos
 		do {
 			client->receiveDataFromServer(buffer, BUFFER_SIZE_C);
 			if (!exit)
@@ -155,7 +162,7 @@ char Connections::initGame(void * callback(char* mapName, unsigned int mapNameSi
 			data2Send[1 + i] = nameP1[i];
 		client->sendData(data2Send, nameSize + 2);				//lo envio
 		clearBuffer();
-		timerNB(120000);
+		timerNB(DEFAULT_TIMEOUT);
 		do {
 			client->receiveDataFromServer(buffer, BUFFER_SIZE_C);
 			if (!exit)
@@ -164,7 +171,7 @@ char Connections::initGame(void * callback(char* mapName, unsigned int mapNameSi
 		data2Send[0] = NAME_C;
 		client->sendData(data2Send, 1);
 		clearBuffer();
-		timerNB(120000);
+		timerNB(DEFAULT_TIMEOUT);
 		do {
 			client->receiveDataFromServer(buffer, BUFFER_SIZE_C);
 			if (!exit)
@@ -178,7 +185,7 @@ char Connections::initGame(void * callback(char* mapName, unsigned int mapNameSi
 		data2Send[0] = ACK_C;								//mando un ACK
 		client->sendData(data2Send, 1);
 		clearBuffer();
-		timerNB(120000);
+		timerNB(DEFAULT_TIMEOUT);
 		do {
 			client->receiveDataFromServer(buffer, BUFFER_SIZE_C);
 			if (!exit)
@@ -193,7 +200,7 @@ char Connections::initGame(void * callback(char* mapName, unsigned int mapNameSi
 		data2Send[0] = ACK_C;								//mando un ACK
 		client->sendData(data2Send, 1);
 		clearBuffer();
-		timerNB(120000);
+		timerNB(DEFAULT_TIMEOUT);
 		do {
 			client->receiveDataFromServer(buffer, BUFFER_SIZE_C);
 			if (!exit)
@@ -294,7 +301,7 @@ bool Connections::sendMessage(move_s move, int data1, int data2, int data3, int 
 	data2Send[3] = data3;	//ver que datos envio para cada paquete.
 	data2Send[4] = data4;
 	data2Send[5] = data5;
-	timerNB(120000);
+	timerNB(DEFAULT_TIMEOUT);
 	if (isServer)			//envio el paquete y espero a recibir un ACK
 	{
 		Server * server = (Server *)SoC;
