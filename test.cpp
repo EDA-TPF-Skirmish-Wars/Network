@@ -116,6 +116,7 @@ bool callback2(move_s move, int data1, int data2, int data3, int data4, int data
 		break;
 	case QUIT:
 		cout << "Recibi QUIT" << endl;
+		return false;
 		break;
 	default:
 		cout << "Recibi algo mal" << endl;

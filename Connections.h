@@ -19,7 +19,6 @@
 
 typedef enum {ATTACK, PURCHASE, MOVE, PASS, QUIT}move_s;
 typedef char * p2char;
-typedef char byte;
 
 
 class Connections
@@ -50,7 +49,7 @@ protected:
 	unsigned int nameSizeP2;
 private:
 	void clearBuffer();
-	byte buffer[BUFFER_SIZE_C];
+	char buffer[BUFFER_SIZE_C];
 	char data2Send[BUFFER_SIZE_C];						//creo un buffer para enviar datos
 };
 

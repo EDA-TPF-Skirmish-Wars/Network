@@ -270,7 +270,12 @@ bool Connections::waitForMyTurn(bool callback(move_s move, int data1, int data2,
 	if (answer == true)			//en caso de que el callback me devuelva un true, envio un ACK
 		data2Send[0] = (char)ACK_C;
 	else
-		data2Send[0] = (char)ERROR_C;	// caso contrario envio un paquete error
+	{
+		if(buffer[0] != QUIT_C)
+			data2Send[0] = (char)ERROR_C;	// caso contrario envio un paquete error
+		else
+			data2Send[0] = (char)ACK_C;
+	}
 	if (isServer)
 	{
 		Server * server = (Server *)SoC;
@@ -291,13 +296,15 @@ bool Connections::sendMessage(move_s move, int data1, int data2, int data3, int 
 	//VER CASO DE PAQUETE ATTACK
 	bool exit = false;
 	if (move == MOVE)					//seteo el paquete que voy a enviar
-		data2Send[0] = MOVE_C;
+		data2Send[0] = (char)MOVE_C;
 	else if (move == PURCHASE)
-		data2Send[0] = PURCHASE_C;
+		data2Send[0] = (char)PURCHASE_C;
 	else if (move == ATTACK)
-		data2Send[0] = ATTACK_C;
+		data2Send[0] = (char)ATTACK_C;
 	else if (move == PASS)
-		data2Send[0] = PASS_C;
+		data2Send[0] = (char)PASS_C;
+	else if (move == QUIT)
+		data2Send[0] = (char)QUIT_C;
 	data2Send[1] = data1;	//si bien para algunos paquetes la cantidad de datos puede sobrar, envio todos los datos que tengo en las variables, porque
 	data2Send[2] = data2;	//los datos no inicializados se setean en 0, y el que recibe el mensaje debe checkear que los datos esten bien, por lo cual no hace falta
 	data2Send[3] = data3;	//ver que datos envio para cada paquete.
