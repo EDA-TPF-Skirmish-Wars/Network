@@ -30,7 +30,7 @@ bool Client::ConnectToServer(const char * ipServer, const char * portNumber)
 	}
 	catch (std::exception a)
 	{
-		std::cout << "Error al conectarse con el servidor, recuerde que este debe estar escuchando el puerto" << std::endl;
+		//std::cout << "Error al conectarse con el servidor, recuerde que este debe estar escuchando el puerto" << std::endl;
 		//exit(4);
 	}
 	this->clientSocket->non_blocking(true);	

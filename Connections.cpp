@@ -20,7 +20,7 @@
 #define ERROR_C	0xFE
 #define QUIT_C	0xFF
 
-#define DEFAULT_TIMEOUT	120000
+#define DEFAULT_TIMEOUT	120000		//CAMBIAR A 120000
 #define HOST	"localhost"
 #define PORT	"13225"
 #define PORT_NUM	13225
@@ -196,7 +196,7 @@ char Connections::initGame(void * callback(char* mapName, unsigned int mapNameSi
 		for (unsigned int i = 0; i < buffer[0]; i++)
 			tempMapName[i] = buffer[2 + i];
 		callback(tempMapName, buffer[1], buffer[2+buffer[1]]);
-		delete tempMapName;																//NO ENTIENDO PORQUE NO ANDA ESTE DELETE BIENN
+		//delete tempMapName;
 		data2Send[0] = ACK_C;								//mando un ACK
 		client->sendData(data2Send, 1);
 		clearBuffer();
@@ -287,6 +287,8 @@ bool Connections::waitForMyTurn(bool callback(move_s move, int data1, int data2,
 
 bool Connections::sendMessage(move_s move, int data1, int data2, int data3, int data4, int data5)
 {
+
+	//VER CASO DE PAQUETE ATTACK
 	bool exit = false;
 	if (move == MOVE)					//seteo el paquete que voy a enviar
 		data2Send[0] = MOVE_C;
