@@ -36,60 +36,39 @@ int main(void)
 		char * a = NULL;
 		temp = testConnection.initGame(NULL,0,0,a);
 	}
-	bool temp2;
-	if (temp)
-	{
-		cout << "What message do you want to send? ATTACK (a) PURCHASE (c) MOVE (m) PASS (p) QUIT (q)" << endl;
-		char c = getchar();
-		getchar();
-		switch (c){
-		case 'a':
-			testConnection.sendMessage(ATTACK);
-			break;
-		case 'c':
-			testConnection.sendMessage(PURCHASE,3,4,1,1);
-			break;
-		case 'm':
-			testConnection.sendMessage(MOVE, 0, 0, 0, 1);
-			break;
-		case 'p':
-			testConnection.sendMessage(PASS);
-			break;
-		case 'q':
-			testConnection.sendMessage(QUIT);
-			break;
-		default:
-			testConnection.sendMessage(QUIT);
-			break;
-		}
-	}
+	if(!testConnection.amIServer())
+		temp = testConnection.waitForMyTurn(&callback2);
+	if (temp == false)
+		return 0;
+	bool temp2 = true;
 	do
 	{
-		temp = testConnection.waitForMyTurn(&callback2);
 		cout << "What message do you want to send? ATTACK (a) PURCHASE (c) MOVE (m) PASS (p) QUIT (q)" << endl;
 		char c = getchar();
 		getchar();
 		switch (c) {
 		case 'a':
-			testConnection.sendMessage(ATTACK,5,5,6,6,6);
+			temp2=testConnection.sendMessage(ATTACK,5,5,6,6,6);
 			break;
 		case 'c':
-			testConnection.sendMessage(PURCHASE, 3, 4, 1, 1);
+			temp2 = testConnection.sendMessage(PURCHASE, 3, 4, 1, 1);
 			break;
 		case 'm':
-			testConnection.sendMessage(MOVE, 0, 0, 0, 1);
+			temp2 = testConnection.sendMessage(MOVE, 0, 0, 0, 1);
 			break;
 		case 'p':
-			testConnection.sendMessage(PASS);
+			temp2 = testConnection.sendMessage(PASS);
 			break;
 		case 'q':
-			testConnection.sendMessage(QUIT);
+			temp2 = testConnection.sendMessage(QUIT);
 			break;
 		default:
-			testConnection.sendMessage(QUIT);
+			temp2 = testConnection.sendMessage(QUIT);
 			break;
 		}
-	} while (temp);
+		if(temp2)
+			temp = testConnection.waitForMyTurn(&callback2);
+	} while (temp && temp2);
 
 	return 0;
 }

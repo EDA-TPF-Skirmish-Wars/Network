@@ -271,7 +271,7 @@ bool Connections::waitForMyTurn(bool callback(move_s move, int data1, int data2,
 		data2Send[0] = (char)ACK_C;
 	else
 	{
-		if(buffer[0] != QUIT_C)
+		if(buffer[0] != QUIT_C)					//QUE ONDA ESTO QUE NO ANDA
 			data2Send[0] = (char)ERROR_C;	// caso contrario envio un paquete error
 		else
 			data2Send[0] = (char)ACK_C;
@@ -320,7 +320,7 @@ bool Connections::sendMessage(move_s move, int data1, int data2, int data3, int 
 			if (!exit)
 				exit = isTimerFinished();
 			server->receiveDataFromClient(buffer, BUFFER_SIZE_C);				//esto en realidad no va a ir asi falta checkear otros mensajes, por ahora para debuguear lo dejop asi
-		} while (buffer[0] != ACK_C && exit != true && buffer[0]!=ERROR_C);
+		} while (buffer[0] != ACK_C && exit != true && buffer[0]!=ERROR_C && move != QUIT);
 	}
 	else
 	{
@@ -331,11 +331,11 @@ bool Connections::sendMessage(move_s move, int data1, int data2, int data3, int 
 			if (!exit)
 				exit = isTimerFinished();
 			client->receiveDataFromServer(buffer, BUFFER_SIZE_C);
-		} while (buffer[0] != ACK_C  && exit != true && buffer[0] != ERROR_C);
+		} while (buffer[0] != ACK_C  && exit != true && buffer[0] != ERROR_C && move != QUIT);
 	}
 
 
-	if (exit || buffer[0] == ERROR_C)
+	if (exit || buffer[0] == ERROR_C || move == QUIT)
 		return false;
 	else
 		return true;
