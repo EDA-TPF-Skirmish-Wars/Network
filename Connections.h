@@ -46,12 +46,15 @@ public:
 	del nombre y el checksum del mapa como argumentos. En caso de ser servidor se deve enviar como argumentos primero un 
 	NULL seguido de el tamaño del nombre del mapa sorteado, el checksum, y por ultimo puntero al nombre.*/
 
-	bool sendMessage(move_s move, int data1 = 0, int data2 = 0, int data3 = 0, int data4 = 0, int data5 = 0);
+	bool sendMessage(move_s move, int data1 = 0, int data2 = 0, int data3 = 0, int data4 = 0, int data5 = 0,\
+		bool callback(move_s move, int data1, int data2, int data3, int data4, int data5) =NULL);
 	/*Funcion para enviar mensajes de movimiento de tablero, ataque, compra, etc. Dependiendo de que mensaje se quiera
 	enviar, debe llenar los argumentos data1, data2,etc. Es decir si se quiere mover una pieza, se debe poner en data1
 	la fila de la pieza antes de moverla, en data2 la columna de la pieza antes de moverla, en data3 la fila despues de moverla
 	y en data4 la columna despues de moverla. Para ver cada mensaje en especifico, seguir el orden del protocolo de comunicacion.
-	Nota: Es bloqueante hasta que llegue un ACK o halla un timeout.*/
+	Nota: Es bloqueante hasta que llegue un ACK o halla un timeout.
+	El callback se utiliza para el caso donde se envia un ATTACK, que despues de enviarlo, el jugador atacado, responde con
+	otro paquete attack.*/
 
 	bool waitForMyTurn(bool callback(move_s move,int data1, int data2 , int data3, int data4, int data5)); 
 	/*Funcion que espera a recibir una jugada del jugador contrario, ni bien la recibe llama al callback con la movida que
