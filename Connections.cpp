@@ -81,7 +81,8 @@ void Connections::establishConnection()
 bool Connections::amIServer()
 {return isServer;}
 
-char Connections::initGame(void * callback(char* mapName, unsigned int mapNameSize, int checksum), unsigned int sizeOfMapName, int checksum, char * mapName)
+char Connections::initGame(void * callback(char* mapName, unsigned int mapNameSize, int checksum),\
+	unsigned int sizeOfMapName, int checksum, char * mapName)
 {
 	char answer;
 	bool exit = false;
@@ -292,8 +293,10 @@ void Connections::setName(char * name, unsigned int size)		//funcion de iniciali
 	return;
 }
 
-bool Connections::waitForMyTurn(bool callback(move_s move, int data1, int data2, int data3, int data4, int data5))
+bool Connections::waitForMyTurn(bool callback(move_s move, int data1, int data2, int data3, int data4, int data5), \
+	int callbackResponseAttack(void))
 {
+	bool attackFlag = false;
 	bool answer;
 	if (isServer)											//primero me fijo si inicialmente fui servidor o cliente para castear el SoC y utilizar las funciones correctas
 	{
@@ -317,7 +320,37 @@ bool Connections::waitForMyTurn(bool callback(move_s move, int data1, int data2,
 	}
 	else if (buffer[0] == ATTACK_C)
 	{
+		attackFlag = true;
 		answer = callback(ATTACK, buffer[1], buffer[2], buffer[3], buffer[4], buffer[5]); //FALTA MODIFICAR ESTOO
+		if (answer == true)
+		{
+			data2Send[0] = ATTACK_C;
+			data2Send[1] = buffer[3];
+			data2Send[2] = buffer[4];
+			data2Send[3] = buffer[1];
+			data2Send[4] = buffer[2];
+			data2Send[5] = callbackResponseAttack();
+			if (isServer)
+			{
+				Server * server = (Server *)SoC;
+				server->sendData(data2Send, 6);
+				do {
+					server->receiveDataFromClient(buffer, BUFFER_SIZE_C);
+					if (buffer[0] == ERROR_C)
+						answer = false;
+				} while (buffer[0] != ACK_C && answer != false);
+			}
+			else
+			{
+				Client * client = (Client *)SoC;
+				client->sendData(data2Send, 6);
+				do {
+					client->receiveDataFromServer(buffer, BUFFER_SIZE_C);
+					if (buffer[0] == ERROR_C)
+						answer = false;
+				} while (buffer[0] != ACK_C && answer != false);
+			}
+		}
 	}
 	else
 		answer = false;
@@ -326,7 +359,7 @@ bool Connections::waitForMyTurn(bool callback(move_s move, int data1, int data2,
 		data2Send[0] = (char)ACK_C;
 	else
 	{
-		if(buffer[0] != QUIT_C)					//QUE ONDA ESTO QUE NO ANDA
+		if(buffer[0] != QUIT_C)
 			data2Send[0] = (char)ERROR_C;	// caso contrario envio un paquete error
 		else
 			data2Send[0] = (char)ACK_C;
@@ -334,12 +367,14 @@ bool Connections::waitForMyTurn(bool callback(move_s move, int data1, int data2,
 	if (isServer)
 	{
 		Server * server = (Server *)SoC;
-		server->sendData(data2Send, 1);
+		if(!attackFlag)
+			server->sendData(data2Send, 1);
 	}
 	else
 	{
 		Client * client = (Client *)SoC;
-		client->sendData(data2Send, 1);
+		if (!attackFlag)
+			client->sendData(data2Send, 1);
 	}
 
 	return answer; // si estuvo todo OK devuelvo un true, caso contrario un false
