@@ -26,9 +26,8 @@ class Connections
 public:
 	Connections();
 	~Connections();
-	bool establishConnection();
-	/*Primera funcion a utilizar. Se encarga de (segun el protocolo), conectarse con otra maquina al puerto 13225.
-	En caso de que halla ido todo bien devuelve un true.*/
+	void establishConnection();
+	/*Primera funcion a utilizar. Se encarga de (segun el protocolo), conectarse con otra maquina al puerto 13225.*/
 
 	void setName(char * name, unsigned int size);
 	/*Segunda funcion a utilizar.
