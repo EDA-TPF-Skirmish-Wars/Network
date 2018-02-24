@@ -9,6 +9,7 @@ using namespace std;
 
 void  * callback(char * mapname, unsigned int mapNameSize, int checksum);
 bool callback2(move_s move, int data1, int data2, int data3, int data4, int data5);
+int callbackResponseAttack(void);
 
 
 int main(void)
@@ -20,7 +21,7 @@ int main(void)
 	}
 	Connections testConnection;
 	cout << "Press ENTER to start testing" << endl;
-	getchar();
+	//getchar();
 	testConnection.establishConnection();
 	char nombre[4] = { 'I','A','N','2' };
 	testConnection.setName(nombre, 4);
@@ -33,11 +34,11 @@ int main(void)
 	else
 	{
 		cout << "You're Server" << endl;
-		char * a = NULL;
-		temp = testConnection.initGame(NULL,0,0,a);
+		char a = 'a';
+		temp = testConnection.initGame(NULL,1,2,&a);
 	}
 	if(!testConnection.amIServer())
-		temp = testConnection.waitForMyTurn(&callback2);
+		temp = testConnection.waitForMyTurn(&callback2,&callbackResponseAttack);
 	if (temp == false)
 		return 0;
 	bool temp2 = true;
@@ -48,7 +49,7 @@ int main(void)
 		getchar();
 		switch (c) {
 		case 'a':
-			temp2=testConnection.sendMessage(ATTACK,5,5,6,6,6);
+			temp2=testConnection.sendMessage(ATTACK,5,5,6,6,6,&callback2);
 			break;
 		case 'c':
 			temp2 = testConnection.sendMessage(PURCHASE, 3, 4, 1, 1);
@@ -67,7 +68,7 @@ int main(void)
 			break;
 		}
 		if(temp2)
-			temp = testConnection.waitForMyTurn(&callback2);
+			temp = testConnection.waitForMyTurn(&callback2,&callbackResponseAttack);
 	} while (temp && temp2);
 
 	return 0;
@@ -102,4 +103,10 @@ bool callback2(move_s move, int data1, int data2, int data3, int data4, int data
 		break;
 	}
 	return true;
+}
+
+int callbackResponseAttack(void)
+{
+	srand(time(NULL));
+	return (rand() % 6);
 }

@@ -57,7 +57,7 @@ public:
 	otro paquete attack.*/
 
 	bool waitForMyTurn(bool callback(move_s move,int data1, int data2 , int data3, int data4, int data5),\
-	int callbackResponseAttack(void)=NULL); 
+	int callbackResponseAttack(void)); 
 	/*Funcion que espera a recibir una jugada del jugador contrario, ni bien la recibe llama al callback con la movida que
 	hizo el contrario y todos los datos para actualizar en el tablero nuestro, luego, cuando el callback le devuelve un
 	true (es decir que todo esta bien), envia un ACK y sale de la funcion con un true, en caso de que la movida no sea valida,

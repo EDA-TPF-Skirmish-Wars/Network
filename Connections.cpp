@@ -106,7 +106,7 @@ char Connections::initGame(void * callback(char* mapName, unsigned int mapNameSi
 		nameP2 = new char[sizeOfName];						//en nameP2
 		nameSizeP2 = sizeOfName;
 		for (int i = 0; i < sizeOfName; i++)
-			nameP2[i] = buffer[1 + i];
+			nameP2[i] = buffer[2 + i];
 
 
 		data2Send[0] = ACK_C;								//mando un ACK
@@ -126,7 +126,7 @@ char Connections::initGame(void * callback(char* mapName, unsigned int mapNameSi
 		data2Send[0] = NAME_IS_C;							//creo el paquete name is
 		data2Send[1] = nameSize;
 		for (unsigned int i = 0; i < nameSize; i++)
-			data2Send[1 + i] = nameP1[i];
+			data2Send[2 + i] = nameP1[i];
 		if(exit != true)
 			server->sendData(data2Send, nameSize + 2);				//lo envio
 
@@ -200,7 +200,7 @@ char Connections::initGame(void * callback(char* mapName, unsigned int mapNameSi
 		data2Send[0] = NAME_IS_C;							//creo el paquete name is
 		data2Send[1] = nameSize;
 		for (unsigned int i = 0; i < nameSize; i++)
-			data2Send[1 + i] = nameP1[i];
+			data2Send[2 + i] = nameP1[i];
 		if(exit != true)
 			client->sendData(data2Send, nameSize + 2);				//lo envio
 		clearBuffer();
@@ -228,7 +228,7 @@ char Connections::initGame(void * callback(char* mapName, unsigned int mapNameSi
 		nameP2 = new char[sizeOfName];						//en nameP2
 		nameSizeP2 = sizeOfName;
 		for (int i = 0; i < sizeOfName; i++)
-			nameP2[i] = buffer[1 + i];
+			nameP2[i] = buffer[2 + i];
 		data2Send[0] = ACK_C;		
 		if (exit != true)				//mando un ACK
 			client->sendData(data2Send, 1);
@@ -243,7 +243,7 @@ char Connections::initGame(void * callback(char* mapName, unsigned int mapNameSi
 		} while (buffer[0] != MAP_IS_C && exit != true);
 		char * tempMapName;
 		tempMapName = new char[buffer[1]];
-		for (char i = 0; i < buffer[0]; i++)
+		for (char i = 0; i < buffer[1]; i++)
 			tempMapName[i] = buffer[2 + i];
 		callback(tempMapName, buffer[1], buffer[2+buffer[1]]);
 		//delete[] tempMapName;
@@ -351,6 +351,10 @@ bool Connections::waitForMyTurn(bool callback(move_s move, int data1, int data2,
 				} while (buffer[0] != ACK_C && answer != false);
 			}
 		}
+	}
+	else if (buffer[0] == PASS_C)
+	{
+		answer = true;
 	}
 	else
 		answer = false;
