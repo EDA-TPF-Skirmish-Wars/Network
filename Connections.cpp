@@ -98,7 +98,7 @@ char Connections::initGame(void * callback(char* mapName, unsigned int mapNameSi
 			if (!exit)
 				exit = isTimerFinished();
 			if (buffer[0] == ERROR_C)
-				exit == true;
+				exit = true;
 		} while (buffer[0] != NAME_IS_C && exit != true);
 
 		int sizeOfName = buffer[1];							//guardo el nombre
@@ -118,7 +118,7 @@ char Connections::initGame(void * callback(char* mapName, unsigned int mapNameSi
 			if (!exit)
 				exit = isTimerFinished();
 			if (buffer[0] == ERROR_C)
-				exit == true;
+				exit = true;
 		} while (buffer[0] != NAME_C && exit != true);
 
 
@@ -136,7 +136,7 @@ char Connections::initGame(void * callback(char* mapName, unsigned int mapNameSi
 			if (!exit)
 				exit = isTimerFinished();
 			if (buffer[0] == ERROR_C)
-				exit == true;
+				exit = true;
 		} while (buffer[0] != ACK_C && exit != true);
 
 
@@ -155,7 +155,7 @@ char Connections::initGame(void * callback(char* mapName, unsigned int mapNameSi
 			if (!exit)
 				exit = isTimerFinished();
 			if (buffer[0] == ERROR_C)
-				exit == true;
+				exit = true;
 		} while (buffer[0] != ACK_C && exit != true);
 
 
@@ -178,7 +178,7 @@ char Connections::initGame(void * callback(char* mapName, unsigned int mapNameSi
 				if (!exit)
 					exit = isTimerFinished();
 				if (buffer[0] == ERROR_C)
-					exit == true;
+					exit = true;
 			} while (buffer[0] != ACK_C && exit != true);
 
 			answer = true;
@@ -194,7 +194,7 @@ char Connections::initGame(void * callback(char* mapName, unsigned int mapNameSi
 			if (!exit)
 				exit = isTimerFinished();
 			if (buffer[0] == ERROR_C)
-				exit == true;
+				exit = true;
 		} while (buffer[0] != NAME_C && exit != true);		//veo si recibo datos del servidor o si se acabo el tiempo
 		data2Send[0] = NAME_IS_C;							//creo el paquete name is
 		data2Send[1] = nameSize;
@@ -209,7 +209,7 @@ char Connections::initGame(void * callback(char* mapName, unsigned int mapNameSi
 			if (!exit)
 				exit = isTimerFinished();
 			if (buffer[0] == ERROR_C)
-				exit == true;
+				exit = true;
 		} while (buffer[0] != ACK_C && exit != true);
 		data2Send[0] = NAME_C;
 		if (exit != true)
@@ -221,7 +221,7 @@ char Connections::initGame(void * callback(char* mapName, unsigned int mapNameSi
 			if (!exit)
 				exit = isTimerFinished();
 			if (buffer[0] == ERROR_C)
-				exit == true;
+				exit = true;
 		} while (buffer[0] != NAME_IS_C && exit != true);
 		int sizeOfName = buffer[1];							//guardo el nombre
 		nameP2 = new char[sizeOfName];						//en nameP2
@@ -238,7 +238,7 @@ char Connections::initGame(void * callback(char* mapName, unsigned int mapNameSi
 			if (!exit)
 				exit = isTimerFinished();
 			if (buffer[0] == ERROR_C)
-				exit == true;
+				exit = true;
 		} while (buffer[0] != MAP_IS_C && exit != true);
 		char * tempMapName;
 		tempMapName = new char[buffer[1]];
@@ -256,7 +256,7 @@ char Connections::initGame(void * callback(char* mapName, unsigned int mapNameSi
 			if (!exit)
 				exit = isTimerFinished();
 			if (buffer[0] == ERROR_C)
-				exit == true;
+				exit = true;
 		} while (buffer[0] != YOU_START_C && buffer[0] != I_START_C && exit != true);
 		data2Send[0] = ACK_C;								//mando un ACK
 		if (exit != true)
@@ -345,7 +345,7 @@ bool Connections::waitForMyTurn(bool callback(move_s move, int data1, int data2,
 	return answer; // si estuvo todo OK devuelvo un true, caso contrario un false
 }
 
-bool Connections::sendMessage(move_s move, int data1 = 0, int data2 = 0, int data3 = 0, int data4 = 0, int data5 = 0, \
+bool Connections::sendMessage(move_s move, int data1, int data2, int data3, int data4, int data5, \
 	bool callback(move_s move,int data1, int data2 , int data3, int data4, int data5))
 {
 	bool answer;
