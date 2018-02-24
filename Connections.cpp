@@ -31,8 +31,14 @@ using namespace std;
 Connections::Connections()
 {
 	isServer=false;
-	for (int i = 0; i < BUFFER_SIZE_C; i++)	//seteo el buffer en 0
-		buffer[i]=0;
+	clearBuffer();
+	nameSize = 0;
+	nameSizeP2 = 0;
+	nameP1 = NULL;
+	nameP2 = NULL;
+	SoC = NULL;
+	for (int i = 0; i < BUFFER_SIZE_C; i++)
+		data2Send[i] = 0;
 }
 
 Connections::~Connections()
@@ -74,7 +80,7 @@ bool Connections::amIServer()
 
 char Connections::initGame(void * callback(char* mapName, unsigned int mapNameSize, int checksum), unsigned int sizeOfMapName, int checksum, char * mapName)
 {
-	bool answer;
+	char answer;
 	bool exit = false;
 	if (isServer)
 	{
@@ -193,7 +199,7 @@ char Connections::initGame(void * callback(char* mapName, unsigned int mapNameSi
 		} while (buffer[0] != MAP_IS_C && exit != true);
 		char * tempMapName;
 		tempMapName = new char[buffer[1]];
-		for (unsigned int i = 0; i < buffer[0]; i++)
+		for (char i = 0; i < buffer[0]; i++)
 			tempMapName[i] = buffer[2 + i];
 		callback(tempMapName, buffer[1], buffer[2+buffer[1]]);
 		//delete tempMapName;
@@ -341,3 +347,9 @@ bool Connections::sendMessage(move_s move, int data1, int data2, int data3, int 
 		return true;
 
 }
+
+unsigned int Connections::getOpponentNameSize()
+{return nameSizeP2;}
+
+char * Connections::getOpponentName()
+{return nameP2;}

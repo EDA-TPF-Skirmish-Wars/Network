@@ -1,8 +1,6 @@
 #include "Server.h"
 
-/*Server()
-recibe como paramtro un int, que representa el puerto que el srvidor escucha,
-en caso que ese puerto no sea indicado, el puerto por defecto es 12345.*/
+
 Server::Server(UINT32 port)
 {
 	portNumber = port;
@@ -40,11 +38,6 @@ void Server::waitForClient()
 	return;
 }
 
-/*receiveDataFromClient()
-previamente se deve llamar a waitForClient()
-recibe como parametros un arreglo de char(buffer) y una int,
-con la cantidad de elementos de dicho arreglo.
-si se pudo recibir toda la info devuelve la cantidad de datos que recibio, si no pudo devuelve un -1*/
 size_t Server::receiveDataFromClient(char * buffer_t, int bufferSize)
 {
 	size_t messageLength = 0;
@@ -67,11 +60,6 @@ size_t Server::receiveDataFromClient(char * buffer_t, int bufferSize)
 	return messageLength;
 }
 
-/*Previamente se deve llamar a waitforClient()
-recibe como parametros un arreglo de char(buffer) y un int,
-con la cantidad de elementos de dicho arreglo.
-devuelve la longitud del mensaje recibido si recibio, y si no recibio devuelve -1
-nota: NO ES BLOQUEANTE*/
 size_t Server::NBReceiveDataFromClient(char * buffer_t, int bufferSize)
 {
 	size_t messageLength = 0;
@@ -95,12 +83,6 @@ size_t Server::NBReceiveDataFromClient(char * buffer_t, int bufferSize)
 	return messageLength;
 }
 
-
-
-/* sendData()
-recibe un arreglo de char, que son lo elementos que mandara.Tambien recibe
-un int con la cantidad de elementos que necesita enviar
-Devuelve un true si pudo enviar y un false en el caso contrario.*/
 bool Server::sendData(char * dataToSend_t, unsigned int sizeData)
 {
 	boost::system::error_code error;

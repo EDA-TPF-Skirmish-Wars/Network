@@ -14,11 +14,6 @@ Client::~Client()
 	delete clientResolver;
 }
 
-//ConectToServer()
-//metodo bloqueante que espera a conectarse con un servidor
-//recibe como paramteros 2 string. el primero, ipserver, es la ip del servidor
-//y el segundo string, portnumber, es el numero del puerto en el cual el servidor
-//esta escuchando.
 bool Client::ConnectToServer(const char * ipServer, const char * portNumber)
 {	
 	bool connected = false;
@@ -37,10 +32,6 @@ bool Client::ConnectToServer(const char * ipServer, const char * portNumber)
 	return connected;
 }
  
-/*sendData()
-recibe un arreglo de char, que son lo elementos que mandara. tambien recibe
-un int con la cantidad de elementos que se necesitan enviar
-devuelve true si se pudo enviar el paquete y false en caso contrario*/
 bool Client::sendData(char * dataToSend_t, unsigned int sizeData)
 {
 	boost::system::error_code error;
@@ -51,12 +42,6 @@ bool Client::sendData(char * dataToSend_t, unsigned int sizeData)
 		return true;
 }
 
-/*receiveDataFromServer()
-Previamente se deve llamar a connectToServer()
-recibe como paramteros un arreglo de char(buffer) y una int,
-con la cantidad de elementos de dicho arreglo.
-Si se puedo recibir toda la info devuelve la longitud de lo recibido, caso contrario
-devuelve un -1.*/
 size_t Client::receiveDataFromServer(char * buffer_t, int bufferSize)
 {
 	size_t messageLenght = 0;
@@ -77,14 +62,6 @@ size_t Client::receiveDataFromServer(char * buffer_t, int bufferSize)
 		messageLenght = MY_ERROR;
 	return messageLenght;
 }
-
-
-/*Previamente se deve llamar a connectToServer()
-recibe como paramteros un arreglo de char(buffer) y una int,
-con la cantidad de elementos de dicho arreglo.
-Si se puedo recibir toda la info devuelve la longitud de lo recibido, caso contrario
-devuelve un -1.
-NO ES BLOQUEANTE.*/
 
 size_t Client::NBReceiveDataFromServer(char * buffer_t, int bufferSize)
 {
