@@ -293,7 +293,7 @@ void Connections::setName(char * name, unsigned int size)		//funcion de iniciali
 	return;
 }
 
-bool Connections::waitForMyTurn(bool callback(move_s move, int data1, int data2, int data3, int data4, int data5), \
+int Connections::waitForMyTurn(bool callback(move_s move, int data1, int data2, int data3, int data4, int data5), \
 	int callbackResponseAttack(void))
 {
 	bool attackFlag = false;
@@ -302,13 +302,15 @@ bool Connections::waitForMyTurn(bool callback(move_s move, int data1, int data2,
 	{
 		Server * server = (Server *)SoC;
 		clearBuffer();
-		server->receiveDataFromClient(buffer, BUFFER_SIZE_C);
+		if (server->NBReceiveDataFromClient(buffer, BUFFER_SIZE_C) == -1)
+			return -1;
 	}
 	else
 	{
 		Client * client = (Client *)SoC;
 		clearBuffer();
-		client->receiveDataFromServer(buffer, BUFFER_SIZE_C);
+		if (client->NBReceiveDataFromServer(buffer, BUFFER_SIZE_C) == -1)
+			return -1;
 	}
 	if (buffer[0] == MOVE_C)							//una vez recivido los datos, checkeo si estos son validos y en caso de ser asi, llamo al callback con los datos recividos
 	{

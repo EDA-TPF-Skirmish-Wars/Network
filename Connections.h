@@ -56,15 +56,15 @@ public:
 	El callback se utiliza para el caso donde se envia un ATTACK, que despues de enviarlo, el jugador atacado, responde con
 	otro paquete attack.*/
 
-	bool waitForMyTurn(bool callback(move_s move,int data1, int data2 , int data3, int data4, int data5),\
+	int waitForMyTurn(bool callback(move_s move,int data1, int data2 , int data3, int data4, int data5),\
 	int callbackResponseAttack(void)); 
-	/*Funcion que espera a recibir una jugada del jugador contrario, ni bien la recibe llama al callback con la movida que
+	/*Funcion que espera a recibir una jugada del jugador contrario(NO BLOQUEANTE), ni bien la recibe llama al callback con la movida que
 	hizo el contrario y todos los datos para actualizar en el tablero nuestro, luego, cuando el callback le devuelve un
 	true (es decir que todo esta bien), envia un ACK y sale de la funcion con un true, en caso de que la movida no sea valida,
 	el callback debe devolver un false, por lo cual la funcion envia un paquete ERROR, y sale de la funcion con un false, por 
-	lo que se da como finalizada la partida y perdida la conexion. La funcion callbackAttackResponse() es una funcion que debe
-	devolver el dado tirado por el jugador de esta computadora como respuesta a un ataque recibido, asi puede responder con otro
-	paquete atack segun las reglas del juego.*/
+	lo que se da como finalizada la partida y perdida la conexion, si no recivio nada, devuielve un -1. La funcion callbackAttackResponse() 
+	es una funcion que debe	devolver el dado tirado por el jugador de esta computadora como respuesta a un ataque recibido, asi puede responder
+	con otro paquete atack segun las reglas del juego.*/
 
 	unsigned int getOpponentNameSize();
 	/*Funcion que devuelve el tamaño de caracteres que posee el nombre del jugador oponente*/

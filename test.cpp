@@ -37,8 +37,12 @@ int main(void)
 		char a = 'a';
 		temp = testConnection.initGame(NULL,1,2,&a);
 	}
-	if(!testConnection.amIServer())
-		temp = testConnection.waitForMyTurn(&callback2,&callbackResponseAttack);
+	if (!testConnection.amIServer())
+	{
+		do {
+			temp = testConnection.waitForMyTurn(&callback2, &callbackResponseAttack);
+		} while (temp == -1);
+	}
 	if (temp == false)
 		return 0;
 	bool temp2 = true;
@@ -67,8 +71,12 @@ int main(void)
 			temp2 = testConnection.sendMessage(QUIT);
 			break;
 		}
-		if(temp2)
-			temp = testConnection.waitForMyTurn(&callback2,&callbackResponseAttack);
+		if (temp2)
+		{
+			do {
+				temp = testConnection.waitForMyTurn(&callback2, &callbackResponseAttack);
+			} while (temp == -1);
+		}
 	} while (temp && temp2);
 
 	return 0;
